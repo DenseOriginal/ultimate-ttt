@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import Peer from 'peerjs';
 import { BehaviorSubject } from 'rxjs';
 
@@ -23,7 +23,7 @@ export class GameService {
   public thisPlayer: Player = this.host ? 'red' : 'blue';
   public get canPlace(): boolean { return this.thisPlayer == this.currentPlayer }
 
-  constructor() {
+  constructor(private zone: NgZone) {
     this.peer.on('close', () => console.log('Peer closed'));
     this.peer.on('disconnected', () => console.log('Peer disconnected'));
     this.peer.on('error', (err) => console.log('Peer error: ', err));
@@ -101,7 +101,9 @@ export class GameService {
 
       conn.on('data', data => {
         console.log('Data received: ', data);
-        this.place(+data[0], +data[1], true);
+        this.zone.run(() => {
+          this.place(+data[0], +data[1], true);
+        })
       });
     });
 
