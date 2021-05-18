@@ -3,6 +3,20 @@ import Peer from 'peerjs';
 import { BehaviorSubject } from 'rxjs';
 
 type Player = "red" | "blue";
+
+export enum ServerStatus {
+  PeerError,
+  ConnectionError,
+  NotStarted,
+  Starting,
+  PeerOpen,
+  WaitingForOpponent,
+  Connecting,
+  Connected,
+  Closed,
+  Disconnected
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,18 +33,26 @@ export class GameService {
   private host = !location.hash;
   private peer = new Peer(Math.floor(Math.random() * 1000000000).toString());
   private conn?: Peer.DataConnection;
+  private _serverStatus = new BehaviorSubject<ServerStatus>(ServerStatus.NotStarted);
+  public serverStatus = this._serverStatus.asObservable();
 
   public thisPlayer: Player = this.host ? 'red' : 'blue';
   public get canPlace(): boolean { return this.thisPlayer == this.currentPlayer }
 
   constructor(private zone: NgZone) {
+    this._serverStatus.next(ServerStatus.Starting);
     this.peer.on('close', () => console.log('Peer closed'));
     this.peer.on('disconnected', () => console.log('Peer disconnected'));
-    this.peer.on('error', (err) => console.log('Peer error: ', err));
+    this.peer.on('error', (err) => {
+      this._serverStatus.next(ServerStatus.PeerError);
+      console.log('Peer error: ', err);
+    });
     this.peer.on('open', (id) => {
       console.log('Peer open, id: ' + id);
+      this._serverStatus.next(ServerStatus.PeerOpen);
 
       if (this.host) {
+        this._serverStatus.next(ServerStatus.WaitingForOpponent)
         this.peer.on('connection', conn => {
           console.log('Peer received connection');
           this.setupPeerConnection(conn);
@@ -93,11 +115,13 @@ export class GameService {
   }
 
   setupPeerConnection(conn: Peer.DataConnection): void {
+    this._serverStatus.next(ServerStatus.Connecting)
     this.conn = conn;
     console.log('Setting up connection, ', conn.peer);
 
     conn.on('open', () => {
       console.log('Connection open');
+      this._serverStatus.next(ServerStatus.Connected);
 
       conn.on('data', data => {
         console.log('Data received: ', data);
@@ -107,7 +131,10 @@ export class GameService {
       });
     });
 
-    conn.on('error', (err) => console.log('Connection error: ', err));
+    conn.on('error', (err) => {
+      this._serverStatus.next(ServerStatus.ConnectionError);
+      console.log('Connection error: ', err);
+    });
   }
 }
 
