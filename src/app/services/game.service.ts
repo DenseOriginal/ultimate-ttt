@@ -15,6 +15,8 @@ export class GameService {
   constructor() { }
 
   place(board: number, field: number, player: Player): void {
+    // Don't place if the board isn't active
+    if(this.activeBoard != -1 && this.activeBoard != board) return;
     let newState = this._state.value.split('');
     newState[board * 9 + field] = player == 'red' ? 'R' : 'B';
     this._state.next(newState.join(''));
