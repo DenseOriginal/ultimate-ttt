@@ -20,6 +20,9 @@ export class GameService {
   private peer = new Peer(Math.floor(Math.random() * 1000000000).toString());
   private conn?: Peer.DataConnection;
 
+  public thisPlayer: Player = this.host ? 'red' : 'blue';
+  public get canPlace(): boolean { return this.thisPlayer == this.currentPlayer }
+
   constructor() {
     this.peer.on('close', () => console.log('Peer closed'));
     this.peer.on('disconnected', () => console.log('Peer disconnected'));
@@ -41,7 +44,10 @@ export class GameService {
     })
   }
 
-  place(board: number, field: number, broadcast = true): void {
+  place(board: number, field: number, fromOpponent = false): void {
+    // If it isn't our turn, we can't place;
+    if (this.currentPlayer != this.thisPlayer && !fromOpponent) return;
+
     // Don't place if the board isn't active
     if (this.activeBoard != -1 && this.activeBoard != board) return;
     console.time('Place call');
@@ -57,7 +63,7 @@ export class GameService {
 
     this.currentPlayer = this.currentPlayer == 'red' ? 'blue' : 'red';
 
-    if (broadcast) this.conn?.send(`${board}${field}`);
+    if (!fromOpponent) this.conn?.send(`${board}${field}`);
     console.timeEnd('Place call');
   }
 

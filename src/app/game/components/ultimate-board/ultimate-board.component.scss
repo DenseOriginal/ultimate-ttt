@@ -6,10 +6,34 @@
   display: grid;
   gap: 4px;
   grid-template-columns: repeat(3, 1fr);
+  position: relative;
+}
+
+.game.disabled::after {
+  z-index: 1;
+  content: "";
+  position: absolute;
+  --oversizing: 2%;
+  width: calc(100% + var(--oversizing));
+  height: calc(100% + var(--oversizing));
+  filter: opacity(0.2);
+  background-image: linear-gradient(
+    -45deg,
+    var(--background-accent) 25%,
+    transparent 25%,
+    transparent 50%,
+    var(--background-accent) 50%,
+    var(--background-accent) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 30px 30px;
+  top: calc(var(--oversizing) / -2);
+  left: calc(var(--oversizing) / -2);
 }
 
 .temp {
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-color);
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
 }
