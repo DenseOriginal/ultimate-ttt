@@ -9,27 +9,37 @@
   position: relative;
 }
 
-.game.disabled::after {
-  z-index: 1;
-  content: "";
-  position: absolute;
-  --oversizing: 2%;
-  width: calc(100% + var(--oversizing));
-  height: calc(100% + var(--oversizing));
-  filter: opacity(0.2);
-  background-image: linear-gradient(
-    -45deg,
-    var(--background-accent) 25%,
-    transparent 25%,
-    transparent 50%,
-    var(--background-accent) 50%,
-    var(--background-accent) 75%,
-    transparent 75%,
-    transparent
-  );
-  background-size: 30px 30px;
-  top: calc(var(--oversizing) / -2);
-  left: calc(var(--oversizing) / -2);
+.game {
+  &::after {
+    z-index: 1;
+    content: "";
+    position: absolute;
+    --oversizing: 2%;
+    width: calc(100% + var(--oversizing));
+    height: calc(100% + var(--oversizing));
+    filter: opacity(0.2);
+    background-image: linear-gradient(
+      -45deg,
+      var(--background-accent) 25%,
+      transparent 25%,
+      transparent 50%,
+      var(--background-accent) 50%,
+      var(--background-accent) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 30px 30px;
+    top: calc(var(--oversizing) / -2);
+    left: calc(var(--oversizing) / -2);
+    opacity: 0;
+    transition: opacity 300ms;
+    pointer-events: none;
+  }
+
+  &.disabled::after {
+    opacity: 1;
+    pointer-events: fill;
+  }
 }
 
 .temp {
