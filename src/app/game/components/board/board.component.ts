@@ -11,10 +11,12 @@ export class BoardComponent implements OnInit {
   @Input() active!: boolean;
   @Input() state!: string;
   @Input() id!: number;
+  winner?: string;
 
   constructor(public gameService: GameService) { }
 
   ngOnInit(): void {
+    this.winner = this.gameService.checkWinner(this.id);
   }
 
 }

@@ -1,11 +1,11 @@
-<div class="container" [class.active]="active">
+<div class="container" [class.active]="active" [class]="winner">
   <div class="board">
     <div
       class="field"
       *ngFor="let field of state.split(''); index as idx"
       [class.red]="field == 'R'"
       [class.blue]="field == 'B'"
-      (click)="active && gameService.place(id, idx, 'red')"
+      (click)="!winner && active && gameService.place(id, idx, 'red')"
     ></div>
   </div>
   <div class="overlay"></div>
