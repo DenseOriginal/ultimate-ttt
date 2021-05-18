@@ -1,3 +1,13 @@
 <div class="game-view">
-    <app-ultimate-board></app-ultimate-board>
+  <div class="header">
+    <h1 class="title">
+      <span [class]="gameService.thisPlayer">You</span>
+      VS
+      <span [class]="gameService.thisPlayer == 'red' ? 'blue' : 'red'"
+        >Opponent</span
+      >
+    </h1>
+    <h3 *ngIf="!gameService.canPlace">Waiting for opponent</h3>
+  </div>
+  <app-ultimate-board></app-ultimate-board>
 </div>
