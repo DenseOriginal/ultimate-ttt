@@ -1,7 +1,12 @@
 <div class="container" [class.active]="active">
   <div class="board">
-    <!-- Temporary *ngFor -->
-    <div class="field" *ngFor="let _ of [1,2,3,4,5,6,7,8,9]"></div>
+    <div
+      class="field"
+      *ngFor="let field of state.split(''); index as idx"
+      [class.red]="field == 'R'"
+      [class.blue]="field == 'B'"
+      (click)="gameService.place(id, idx, 'red')"
+    ></div>
   </div>
   <div class="overlay"></div>
 </div>

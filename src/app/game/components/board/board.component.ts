@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { GameService } from 'src/app/services/game.service';
 
 @Component({
   selector: 'app-board',
@@ -8,8 +9,10 @@ import { Component, Input, OnInit } from '@angular/core';
 export class BoardComponent implements OnInit {
 
   @Input() active!: boolean;
+  @Input() state!: string;
+  @Input() id!: number;
 
-  constructor() { }
+  constructor(public gameService: GameService) { }
 
   ngOnInit(): void {
   }

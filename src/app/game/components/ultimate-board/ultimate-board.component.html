@@ -1,11 +1,7 @@
 <div class="game">
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
-    <app-board></app-board>
+  <app-board
+    *ngFor="let state of gameStateSegments | async; index as idx"
+    [state]="state"
+    [id]="idx"
+  ></app-board>
 </div>
