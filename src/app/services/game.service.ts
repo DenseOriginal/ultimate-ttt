@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import Peer from 'peerjs';
 import { BehaviorSubject } from 'rxjs';
 
 type Player = "red" | "blue";
@@ -14,11 +15,36 @@ export class GameService {
 
   public currentPlayer: Player = 'red';
 
-  constructor() { }
+  // Server stuff
+  private host = !location.hash;
+  private peer = new Peer(Math.floor(Math.random() * 1000000000).toString());
+  private conn?: Peer.DataConnection;
 
-  place(board: number, field: number): void {
+  constructor() {
+    this.peer.on('close', () => console.log('Peer closed'));
+    this.peer.on('disconnected', () => console.log('Peer disconnected'));
+    this.peer.on('error', (err) => console.log('Peer error: ', err));
+    this.peer.on('open', (id) => {
+      console.log('Peer open, id: ' + id);
+
+      if (this.host) {
+        this.peer.on('connection', conn => {
+          console.log('Peer received connection');
+          this.setupPeerConnection(conn);
+        });
+      } else {
+        const idToConnect = prompt('Id to connect') || '';
+        const conn = this.peer.connect(idToConnect);
+        console.log('Connection to ', idToConnect);
+        this.setupPeerConnection(conn);
+      }
+    })
+  }
+
+  place(board: number, field: number, broadcast = true): void {
     // Don't place if the board isn't active
     if (this.activeBoard != -1 && this.activeBoard != board) return;
+    console.time('Place call');
 
     let newState = this._state.value.split('');
     newState[board * 9 + field] = this.currentPlayer == 'red' ? 'R' : 'B';
@@ -30,6 +56,9 @@ export class GameService {
     else { this.activeBoard = field }
 
     this.currentPlayer = this.currentPlayer == 'red' ? 'blue' : 'red';
+
+    if (broadcast) this.conn?.send(`${board}${field}`);
+    console.timeEnd('Place call');
   }
 
   checkWinner(board: number): Player | undefined {
@@ -55,6 +84,22 @@ export class GameService {
     }
 
     return undefined;
+  }
+
+  setupPeerConnection(conn: Peer.DataConnection): void {
+    this.conn = conn;
+    console.log('Setting up connection, ', conn.peer);
+
+    conn.on('open', () => {
+      console.log('Connection open');
+
+      conn.on('data', data => {
+        console.log('Data received: ', data);
+        this.place(+data[0], +data[1], false);
+      });
+    });
+
+    conn.on('error', (err) => console.log('Connection error: ', err));
   }
 }
 
