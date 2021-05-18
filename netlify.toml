@@ -1,0 +1,14 @@
+[build]
+    base = "/"
+    publish = "dist/ultimate-ttt"
+    command = "ng build"
+
+[context.production]
+    base = "/"
+    publish = "dist/ultimate-ttt"
+    command = "ng build --configuration production"
+
+[[redirects]]
+    from = "/*"
+    to = "/index.html"
+    status = "200"
