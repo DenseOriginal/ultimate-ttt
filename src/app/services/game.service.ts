@@ -101,7 +101,7 @@ export class GameService {
 
       conn.on('data', data => {
         console.log('Data received: ', data);
-        this.place(+data[0], +data[1], false);
+        this.place(+data[0], +data[1], true);
       });
     });
 
