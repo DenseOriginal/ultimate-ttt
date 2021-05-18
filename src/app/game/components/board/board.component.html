@@ -5,7 +5,7 @@
       *ngFor="let field of state.split(''); index as idx"
       [class.red]="field == 'R'"
       [class.blue]="field == 'B'"
-      (click)="!winner && active && gameService.place(id, idx, 'red')"
+      (click)="!winner && active && gameService.place(id, idx)"
     ></div>
   </div>
   <div class="overlay"></div>

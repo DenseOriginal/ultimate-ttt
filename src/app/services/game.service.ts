@@ -12,14 +12,16 @@ export class GameService {
 
   public activeBoard = -1;
 
+  public currentPlayer: Player = 'red';
+
   constructor() { }
 
-  place(board: number, field: number, player: Player): void {
+  place(board: number, field: number): void {
     // Don't place if the board isn't active
     if (this.activeBoard != -1 && this.activeBoard != board) return;
 
     let newState = this._state.value.split('');
-    newState[board * 9 + field] = player == 'red' ? 'R' : 'B';
+    newState[board * 9 + field] = this.currentPlayer == 'red' ? 'R' : 'B';
     this._state.next(newState.join(''));
 
     // If the board is won, then set activeBoard to -1
@@ -27,6 +29,7 @@ export class GameService {
     if (this.checkWinner(field)) { this.activeBoard = -1 }
     else { this.activeBoard = field }
 
+    this.currentPlayer = this.currentPlayer == 'red' ? 'blue' : 'red';
   }
 
   checkWinner(board: number): Player | undefined {
