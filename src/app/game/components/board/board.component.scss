@@ -22,7 +22,7 @@
   background-color: var(--blue);
 }
 
-.container.active .overlay {
+.container.active:not(.red):not(.blue) .overlay {
   background-color: var(--background-highlight);
   animation-name: activepulse;
   animation-duration: 1s;
