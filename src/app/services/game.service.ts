@@ -28,6 +28,7 @@ export class GameService {
   public activeBoard = -1;
 
   public currentPlayer: Player = 'red';
+  public ready = false;
 
   // Server stuff
   private host = !location.hash;
@@ -35,6 +36,7 @@ export class GameService {
   private conn?: Peer.DataConnection;
   private _serverStatus = new BehaviorSubject<ServerStatus>(ServerStatus.NotStarted);
   public serverStatus = this._serverStatus.asObservable();
+  public joinLink?: string;
 
   public thisPlayer: Player = this.host ? 'red' : 'blue';
   public get canPlace(): boolean { return this.thisPlayer == this.currentPlayer }
@@ -49,6 +51,7 @@ export class GameService {
     });
     this.peer.on('open', (id) => {
       console.log('Peer open, id: ' + id);
+      this.joinLink = `${location.host}/game#${id}`;
       this._serverStatus.next(ServerStatus.PeerOpen);
 
       if (this.host) {
@@ -58,7 +61,7 @@ export class GameService {
           this.setupPeerConnection(conn);
         });
       } else {
-        const idToConnect = prompt('Id to connect') || '';
+        const idToConnect = location.hash.substring(1);
         const conn = this.peer.connect(idToConnect);
         console.log('Connection to ', idToConnect);
         this.setupPeerConnection(conn);
@@ -121,6 +124,7 @@ export class GameService {
 
     conn.on('open', () => {
       console.log('Connection open');
+      this.ready = true;
       this._serverStatus.next(ServerStatus.Connected);
 
       conn.on('data', data => {

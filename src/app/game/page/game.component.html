@@ -7,10 +7,15 @@
         >Opponent</span
       >
     </h1>
-    <h3 *ngIf="!gameService.canPlace">Waiting for opponent</h3>
+    <h3 *ngIf="!gameService.canPlace && gameService.ready">
+      Waiting for opponent
+    </h3>
+    <h3 *ngIf="!gameService.ready && gameService.joinLink">
+      Join using this link: <span class="link">{{ gameService.joinLink }}</span>
+    </h3>
   </div>
   <div class="wrapper">
     <app-ultimate-board></app-ultimate-board>
-    <p>{{ output$ | async}}</p>
+    <p>{{ output$ | async }}</p>
   </div>
 </div>
