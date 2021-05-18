@@ -1,0 +1,80 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background-color: var(--background-color);
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: opacity(0.3);
+}
+
+.container.red .overlay {
+  background-color: var(--red);
+}
+
+.container.blue .overlay {
+  background-color: var(--blue);
+}
+
+.container.active .overlay {
+  background-color: var(--background-highlight);
+  animation-name: activepulse;
+  animation-duration: 1s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+@keyframes activepulse {
+  from {
+    filter: opacity(0.3);
+  }
+  to {
+    filter: opacity(0.2);
+  }
+}
+
+.container.active .board .field:not(.red):not(.blue) {
+  cursor: pointer;
+}
+
+.board {
+  background-color: var(--background-accent);
+  width: 80%;
+  height: 80%;
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.field {
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  display: grid;
+  place-items: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 83%;
+    height: 83%;
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+  &.red::after {
+    background-color: var(--red);
+  }
+
+  &.blue::after {
+    background-color: var(--blue);
+  }
+}
