@@ -12,7 +12,7 @@ export class UltimateBoardComponent implements OnInit {
     map(state => state.match(/.{1,9}/g))
   );
 
-  constructor(private gameService: GameService) { }
+  constructor(public gameService: GameService) { }
 
   ngOnInit(): void {
   }

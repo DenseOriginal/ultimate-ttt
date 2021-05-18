@@ -3,5 +3,6 @@
     *ngFor="let state of gameStateSegments | async; index as idx"
     [state]="state"
     [id]="idx"
+    [active]="gameService.activeBoard == -1 || gameService.activeBoard == idx"
   ></app-board>
 </div>
