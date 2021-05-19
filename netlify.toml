@@ -9,6 +9,11 @@
     command = "ng build --configuration production"
 
 [[redirects]]
+    from = "/robots.txt"
+    to = "/"
+    status = 404
+
+[[redirects]]
     from = "/*"
     to = "/index.html"
     status = 200
