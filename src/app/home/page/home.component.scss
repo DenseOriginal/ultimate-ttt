@@ -17,6 +17,14 @@
     
     h1 {
         font-size: 3rem;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        span {
+            margin-left: 12px;
+        }
     }
 }
 
