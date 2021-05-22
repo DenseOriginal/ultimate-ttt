@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "ttt-squared": {
+      "hosting": {
+        "ultimate-ttt": [
+          "ttt-squared"
+        ]
+      }
+    }
+  }
+}
