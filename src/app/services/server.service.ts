@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 
@@ -20,7 +21,17 @@ interface HistoryDoc {
 })
 export class ServerService {
 
-  constructor(private fire: AngularFirestore, private router: Router) { }
+  constructor(
+    private fire: AngularFirestore,
+    private auth: AngularFireAuth,
+    private router: Router
+  ) {
+    this.signin()
+  }
+  
+  async signin() {
+    await this.auth.signInAnonymously()
+  }
 
   async createGame() {
     const docRef = await this.fire.collection('games').add({
