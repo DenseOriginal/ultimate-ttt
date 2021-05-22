@@ -26,7 +26,7 @@ export class ServerService {
   public history$ = this._history$.asObservable();
   private _game$ = new Subject<GameDoc>();
   public game$ = this._game$.asObservable();
-  public auth$;
+  public auth$ = this.auth.user;
 
   constructor(
     private fire: AngularFirestore,
@@ -34,7 +34,6 @@ export class ServerService {
     private router: Router
   ) {
     this.signin();
-    this.auth$ = auth.user;
   }
   
   async signin() {
