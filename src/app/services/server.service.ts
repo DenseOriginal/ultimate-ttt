@@ -25,9 +25,9 @@ export class ServerService {
   async createGame() {
     const docRef = await this.fire.collection('games').add({
       red: (Math.random() * 100000).toString(),
-      blue: undefined,
+      blue: '',
       status: '-'.repeat(81),
-      lastmove: undefined
+      lastmove: ''
     });
   
     this.router.navigate(['game', docRef.id]);
