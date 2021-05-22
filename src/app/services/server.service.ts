@@ -3,6 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 interface GameDoc {
   red: string;
@@ -27,6 +28,8 @@ export class ServerService {
   private _game$ = new Subject<GameDoc>();
   public game$ = this._game$.asObservable();
   public auth$ = this.auth.user;
+  private uid$ = this.auth$.pipe(map(user => user?.uid));
+  public uid: string = "";
 
   constructor(
     private fire: AngularFirestore,
@@ -34,6 +37,7 @@ export class ServerService {
     private router: Router
   ) {
     this.signin();
+    this.uid$.subscribe(uid => this.uid = uid || "");
   }
   
   async signin() {
@@ -42,7 +46,7 @@ export class ServerService {
 
   async createGame() {
     const docRef = await this.fire.collection('games').add({
-      red: (await this.auth.currentUser)?.uid,
+      red: this.uid,
       blue: '',
       status: '-'.repeat(81),
       lastplayer: ''
@@ -52,7 +56,7 @@ export class ServerService {
   }
 
   async joinGame(gameID: string) {
-    const uid = (await this.auth.currentUser)?.uid;
+    const uid = this.uid;
     const gameRef = this.fire.collection('games').doc<GameDoc>(gameID);
     const data = (await gameRef.get().toPromise()).data();
     if(data?.red != uid && data?.blue == "") {
