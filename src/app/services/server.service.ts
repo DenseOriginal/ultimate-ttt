@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -30,6 +30,8 @@ export class ServerService {
   public auth$ = this.auth.user;
   private uid$ = this.auth$.pipe(map(user => user?.uid));
   public uid: string = "";
+  public currentGameRef?: AngularFirestoreDocument<GameDoc>;
+  public currentGameId?: string;
 
   constructor(
     private fire: AngularFirestore,
@@ -58,6 +60,9 @@ export class ServerService {
   async joinGame(gameID: string) {
     const uid = this.uid;
     const gameRef = this.fire.collection('games').doc<GameDoc>(gameID);
+    this.currentGameRef = gameRef;
+    this.currentGameId = gameID;
+
     const data = (await gameRef.get().toPromise()).data();
     if(data?.red != uid && data?.blue == "") {
       await gameRef.update({
@@ -73,5 +78,23 @@ export class ServerService {
           .map(doc => doc.payload.doc.data())
           .forEach(doc => this._history$.next(doc));
       })
+  }
+
+  place(newState: string, board: number, field: number) {
+    try {
+      this.currentGameRef?.collection('history').add({
+        board,
+        field,
+        player: this.uid,
+        timestamp: new Date()
+      } as HistoryDoc);
+  
+      this.currentGameRef?.update({
+        state: newState,
+        lastplayer: this.uid
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
