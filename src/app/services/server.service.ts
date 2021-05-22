@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, forkJoin, merge, Observable, of, Subject } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 
 interface GameDoc {
   red: string;
@@ -17,6 +17,7 @@ interface HistoryDoc {
   field: number;
   player: string;
   timestamp: Date;
+  color: 'R' | 'B' | ''
 }
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,11 @@ export class ServerService {
   public uid: string = "";
   public currentGameRef?: AngularFirestoreDocument<GameDoc>;
   public currentGameId?: string;
+  public currentGameData?: GameDoc;
+  public get meColor(): 'R' | 'B' | '' {
+    return this.currentGameData?.blue == this.uid ? 'B' :
+           this.currentGameData?.red == this.uid ? 'R' : ''
+  };
 
   constructor(
     private fire: AngularFirestore,
@@ -40,6 +46,7 @@ export class ServerService {
   ) {
     this.signin();
     this.uid$.subscribe(uid => this.uid = uid || "");
+    this.game$.subscribe(game => this.currentGameData = game);
   }
   
   async signin() {
@@ -50,7 +57,7 @@ export class ServerService {
     const docRef = await this.fire.collection('games').add({
       red: this.uid,
       blue: '',
-      status: '-'.repeat(81),
+      state: '-'.repeat(81),
       lastplayer: ''
     });
   
@@ -76,6 +83,11 @@ export class ServerService {
       .subscribe(docs => {
         docs.filter(doc => doc.type == "added")
           .map(doc => doc.payload.doc.data())
+          .map(doc => ({
+            ...doc,
+            color: this.currentGameData?.blue == doc.player ? 'B' :
+                   this.currentGameData?.red == doc.player ? 'R' : '' as 'R' | 'B' | ''
+          }))
           .forEach(doc => this._history$.next(doc));
       })
   }

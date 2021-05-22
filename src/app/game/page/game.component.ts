@@ -11,22 +11,22 @@ import { ServerService } from 'src/app/services/server.service';
 })
 export class GameComponent implements OnInit {
 
-  output$ = this.gameService.serverStatus.pipe(
-    map(status => {
-      switch (status) {
-        case ServerStatus.PeerError: return "Couldn't connect to the server";
-        case ServerStatus.ConnectionError: return "Something happened to the connection";
-        case ServerStatus.WaitingForOpponent: return "Waiting for opponent";
-        case ServerStatus.Connecting: return "Connection to opponent";
-        case ServerStatus.Connected: return "Connected";
-        case ServerStatus.Disconnected: return "Disconnected";
-        case ServerStatus.Closed: return "Connection to the server closed";
-        case ServerStatus.NotStarted: return "Server is not ready";
-        case ServerStatus.Starting: return "Server is starting";
-        default: return "";
-      }
-    })
-  )
+  // output$ = this.gameService.serverStatus.pipe(
+  //   map(status => {
+  //     switch (status) {
+  //       case ServerStatus.PeerError: return "Couldn't connect to the server";
+  //       case ServerStatus.ConnectionError: return "Something happened to the connection";
+  //       case ServerStatus.WaitingForOpponent: return "Waiting for opponent";
+  //       case ServerStatus.Connecting: return "Connection to opponent";
+  //       case ServerStatus.Connected: return "Connected";
+  //       case ServerStatus.Disconnected: return "Disconnected";
+  //       case ServerStatus.Closed: return "Connection to the server closed";
+  //       case ServerStatus.NotStarted: return "Server is not ready";
+  //       case ServerStatus.Starting: return "Server is starting";
+  //       default: return "";
+  //     }
+  //   })
+  // )
 
   constructor(
     public gameService: GameService,

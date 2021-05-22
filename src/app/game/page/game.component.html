@@ -1,21 +1,18 @@
 <div class="game-view">
   <div class="header">
     <h1 class="title">
-      <span [class]="gameService.thisPlayer">You</span>
+      <!-- <span [class]="gameService.thisPlayer">You</span>
       VS
       <span [class]="gameService.thisPlayer == 'red' ? 'blue' : 'red'"
         >Opponent</span
-      >
+      > -->
     </h1>
     <p class="info" *ngIf="!gameService.canPlace && gameService.ready">
       Waiting for opponent
     </p>
-    <p class="info" *ngIf="!gameService.ready && gameService.joinLink">
-      Join using this link: <span class="link">{{ gameService.joinLink }}</span>
-    </p>
   </div>
   <div class="wrapper">
     <app-ultimate-board></app-ultimate-board>
-    <p>{{ output$ | async }}</p>
+    <!-- <p>{{ output$ | async }}</p> -->
   </div>
 </div>

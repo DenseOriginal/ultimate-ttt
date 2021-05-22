@@ -1,6 +1,6 @@
-import { Injectable, NgZone } from '@angular/core';
-import Peer from 'peerjs';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ServerService } from './server.service';
 
 type Player = "red" | "blue";
 
@@ -28,68 +28,42 @@ export class GameService {
   public activeBoard = -1;
 
   public currentPlayer: Player = 'red';
-  public ready = false;
+  public ready = true;
 
-  // Server stuff
-  private host = !location.hash;
-  private peer = new Peer(Math.floor(Math.random() * 1000000000).toString());
-  private conn?: Peer.DataConnection;
-  private _serverStatus = new BehaviorSubject<ServerStatus>(ServerStatus.NotStarted);
-  public serverStatus = this._serverStatus.asObservable();
-  public joinLink?: string;
+  public get canPlace(): boolean { return this.server.currentGameData?.lastplayer != this.server.uid }
 
-  public thisPlayer: Player = this.host ? 'red' : 'blue';
-  public get canPlace(): boolean { return this.thisPlayer == this.currentPlayer }
+  constructor(
+    private server: ServerService
+  ) {
+    server.history$.subscribe(doc => {
+      console.time('Place call');
+      const { board, field, color } = doc;
 
-  constructor(private zone: NgZone) {
-    this._serverStatus.next(ServerStatus.Starting);
-    this.peer.on('close', () => console.log('Peer closed'));
-    this.peer.on('disconnected', () => console.log('Peer disconnected'));
-    this.peer.on('error', (err) => {
-      this._serverStatus.next(ServerStatus.PeerError);
-      console.log('Peer error: ', err);
+      let newState = this._state.value.split('');
+      newState[board * 9 + field] = color;
+      this._state.next(newState.join(''));
+
+      // If the board is won, then set activeBoard to -1
+      // Else set the activeBoard to the next board
+      if (this.checkWinner(field)) { this.activeBoard = -1 }
+      else { this.activeBoard = field }
+
+      // this.currentPlayer = this.currentPlayer == 'red' ? 'blue' : 'red';
+
+      // if (!fromOpponent) this.conn?.send(`${board}${field}`);
+      console.timeEnd('Place call');
     });
-    this.peer.on('open', (id) => {
-      console.log('Peer open, id: ' + id);
-      this.joinLink = `${location.host}/game#${id}`;
-      this._serverStatus.next(ServerStatus.PeerOpen);
-
-      if (this.host) {
-        this._serverStatus.next(ServerStatus.WaitingForOpponent)
-        this.peer.on('connection', conn => {
-          console.log('Peer received connection');
-          this.setupPeerConnection(conn);
-        });
-      } else {
-        const idToConnect = location.hash.substring(1);
-        const conn = this.peer.connect(idToConnect);
-        console.log('Connection to ', idToConnect);
-        this.setupPeerConnection(conn);
-      }
-    })
   }
 
-  place(board: number, field: number, fromOpponent = false): void {
+  place(board: number, field: number): void {
     // If it isn't our turn, we can't place;
-    if (this.currentPlayer != this.thisPlayer && !fromOpponent) return;
+    // if (this.currentPlayer != this.thisPlayer && !fromOpponent) return;
 
     // Don't place if the board isn't active
-    if (this.activeBoard != -1 && this.activeBoard != board) return;
-    console.time('Place call');
-
+    // if (this.activeBoard != -1 && this.activeBoard != board) return;
     let newState = this._state.value.split('');
-    newState[board * 9 + field] = this.currentPlayer == 'red' ? 'R' : 'B';
-    this._state.next(newState.join(''));
-
-    // If the board is won, then set activeBoard to -1
-    // Else set the activeBoard to the next board
-    if (this.checkWinner(field)) { this.activeBoard = -1 }
-    else { this.activeBoard = field }
-
-    this.currentPlayer = this.currentPlayer == 'red' ? 'blue' : 'red';
-
-    if (!fromOpponent) this.conn?.send(`${board}${field}`);
-    console.timeEnd('Place call');
+    newState[board * 9 + field] = this.server.meColor;
+    this.server.place(newState.join(''), board, field);
   }
 
   checkWinner(board: number): Player | undefined {
@@ -115,30 +89,6 @@ export class GameService {
     }
 
     return undefined;
-  }
-
-  setupPeerConnection(conn: Peer.DataConnection): void {
-    this._serverStatus.next(ServerStatus.Connecting)
-    this.conn = conn;
-    console.log('Setting up connection, ', conn.peer);
-
-    conn.on('open', () => {
-      console.log('Connection open');
-      this.ready = true;
-      this._serverStatus.next(ServerStatus.Connected);
-
-      conn.on('data', data => {
-        console.log('Data received: ', data);
-        this.zone.run(() => {
-          this.place(+data[0], +data[1], true);
-        })
-      });
-    });
-
-    conn.on('error', (err) => {
-      this._serverStatus.next(ServerStatus.ConnectionError);
-      console.log('Connection error: ', err);
-    });
   }
 }
 

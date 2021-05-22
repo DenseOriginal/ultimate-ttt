@@ -1,4 +1,4 @@
-<div class="game" [class.disabled]="!gameService.canPlace || !gameService.ready">
+<div class="game" [class.disabled]="!gameService.canPlace">
   <app-board
     *ngFor="let state of gameStateSegments | async; index as idx"
     [state]="state"
