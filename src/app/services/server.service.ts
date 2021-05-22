@@ -46,7 +46,7 @@ export class ServerService {
       red: (await this.auth.currentUser)?.uid,
       blue: '',
       status: '-'.repeat(81),
-      lastmove: ''
+      lastplayer: ''
     });
   
     this.router.navigate(['game', docRef.id]);
