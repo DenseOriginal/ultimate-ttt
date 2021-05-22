@@ -35,7 +35,7 @@ export class ServerService {
 
   async createGame() {
     const docRef = await this.fire.collection('games').add({
-      red: (Math.random() * 100000).toString(),
+      red: (await this.auth.currentUser)?.uid,
       blue: '',
       status: '-'.repeat(81),
       lastmove: ''
