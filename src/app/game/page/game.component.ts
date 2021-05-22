@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { GameService, ServerStatus } from 'src/app/services/game.service';
+import { ServerService } from 'src/app/services/server.service';
 
 @Component({
   selector: 'app-game',
@@ -26,7 +28,19 @@ export class GameComponent implements OnInit {
     })
   )
 
-  constructor(public gameService: GameService) { }
+  constructor(
+    public gameService: GameService,
+    private server: ServerService,
+    private router: ActivatedRoute
+  ) {
+    server.auth$.subscribe((auth) => {
+      // Wait for signin
+            
+      server.joinGame(router.snapshot.params.gameID);
+      server.game$.subscribe(console.log);
+      server.history$.subscribe(doc => console.log(doc));
+    })
+  }
 
   ngOnInit(): void {
   }
