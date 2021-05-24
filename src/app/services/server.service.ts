@@ -17,7 +17,7 @@ interface HistoryDoc {
   field: number;
   player: string;
   timestamp: Date;
-  color: 'R' | 'B' | ''
+  color: 'R' | 'B'
 }
 @Injectable({
   providedIn: 'root'
@@ -34,9 +34,9 @@ export class ServerService {
   public currentGameRef?: AngularFirestoreDocument<GameDoc>;
   public currentGameId?: string;
   public currentGameData?: GameDoc;
-  public get meColor(): 'R' | 'B' | '' {
+  public get meColor(): 'R' | 'B' | 'Spectator' {
     return this.currentGameData?.blue == this.uid ? 'B' :
-           this.currentGameData?.red == this.uid ? 'R' : ''
+           this.currentGameData?.red == this.uid ? 'R' : 'Spectator'
   };
 
   constructor(
@@ -86,7 +86,7 @@ export class ServerService {
           .map(doc => ({
             ...doc,
             color: this.currentGameData?.blue == doc.player ? 'B' :
-                   this.currentGameData?.red == doc.player ? 'R' : '' as 'R' | 'B' | ''
+                   this.currentGameData?.red == doc.player ? 'R' : '' as 'R' | 'B'
           }))
           .forEach(doc => this._history$.next(doc));
       })
@@ -94,6 +94,8 @@ export class ServerService {
 
   place(newState: string, board: number, field: number) {
     try {
+      if(this.meColor == "Spectator") return;
+      
       this.currentGameRef?.collection('history').add({
         board,
         field,
