@@ -27,7 +27,6 @@ export class GameService {
 
   public activeBoard = -1;
 
-  public currentPlayer: Player = 'red';
   public ready = true;
 
   public get canPlace(): boolean { return this.server.currentGameData?.lastplayer != this.server.uid }
