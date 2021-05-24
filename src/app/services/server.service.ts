@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { combineLatest, forkJoin, merge, Observable, of, Subject } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 interface GameDoc {
   red: string;
