@@ -2,8 +2,61 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2021, 6, 21);
+      allow read, write: if false;
+    }
+
+    match /games/{gameID} {
+      allow create: if request.auth != null &&
+                       request.resource.data.red == request.auth.uid &&
+                       request.resource.data.blue == "" &&
+                       request.resource.data.state.matches('-{81}') &&
+                       request.resource.data.lastplayer == "";
+
+      allow update: if (
+                         isPlayerInThisGame() &&
+                         request.resource.data.keys().hasOnly(["state", "lastplayer"]) &&
+                         request.resource.data.state.size() == 81 &&
+                         request.resource.data.lastplayer == request.auth.uid &&
+                         resource.data.lastplayer != request.auth.uid
+                       ) ||
+                       (
+                          resource.data.blue == "" &&
+                          request.resource.data.keys().hasOnly(["blue"])
+                       );
+
+      allow delete: if false;
+
+      allow list: if false;
+      allow get: if isPlayerInThisGame() || 
+                     resource.data.blue == "";
+      
+      match /history/{docID} {
+        allow create: if isPlayerInAnyGame(gameID) &&
+                         getGameData(gameID).lastplayer != request.auth.uid &&
+                         request.resource.data.board >= 0 &&
+                         request.resource.data.board <= 9 &&
+                         request.resource.data.field >= 0 &&
+                         request.resource.data.field <= 9 &&
+                         request.resource.data.player == request.auth.uid && 
+                         request.resource.data.keys().hasOnly(["board", "field", "player", "timestamp"])
+                         
+
+        allow update, delete: if false;
+      }
+    }
+
+    function isPlayerInThisGame() {
+      return request.auth.uid == resource.data.red ||
+             request.auth.uid == resource.data.blue;
+    }
+
+    function getGameData(gameID) {
+      return get(/databases/$(database)/documents/games/$(gameID)).data;
+    }
+
+    function isPlayerInAnyGame(gameID) {
+      return getGameData(gameID).red == request.auth.uid ||
+             getGameData(gameID).blue == request.auth.uid;
     }
   }
 }
