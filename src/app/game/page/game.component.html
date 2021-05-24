@@ -7,7 +7,7 @@
         >Opponent</span
       > -->
     </h1>
-    <p class="info" *ngIf="!gameService.canPlace && gameService.ready">
+    <p class="info" *ngIf="!gameService.canPlace && (gameService.ready | async)">
       Waiting for opponent
     </p>
   </div>

@@ -27,7 +27,8 @@ export class GameService {
 
   public activeBoard = -1;
 
-  public ready = true;
+  // Proxy playersReady from serverService
+  public ready = this.server.playersReady;
 
   public get canPlace(): boolean { return this.server.currentGameData?.lastplayer != this.server.uid }
 

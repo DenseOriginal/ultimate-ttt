@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 interface GameDoc {
   red: string;
@@ -38,6 +38,9 @@ export class ServerService {
     return this.currentGameData?.blue == this.uid ? 'B' :
            this.currentGameData?.red == this.uid ? 'R' : 'Spectator'
   };
+
+  public playersReady = this.game$.pipe(
+    map(game => game.blue && game.red));
 
   constructor(
     private fire: AngularFirestore,
@@ -95,7 +98,7 @@ export class ServerService {
   place(newState: string, board: number, field: number) {
     try {
       if(this.meColor == "Spectator") return;
-      
+
       this.currentGameRef?.collection('history').add({
         board,
         field,
