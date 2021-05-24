@@ -6,18 +6,22 @@ service cloud.firestore {
     }
 
     match /games/{gameID} {
-      allow create: if request.auth != null &&
-                       request.resource.data.red == request.auth.uid &&
-                       request.resource.data.blue == "" &&
+      // allow create: if request.auth != null &&
+      //                  request.resource.data.red == request.auth.uid &&
+      // request.auth is fucked, even when i'm logged in, it's return null
+      // But only happens on firebase's servers, and only in chrome / edge
+      // For now i'm just gonna remove all auth checks...
+      // Nobody is gonna use this shit anyways, so thats cool
+      allow create: if request.resource.data.blue == "" &&
                        request.resource.data.state.matches('-{81}') &&
                        request.resource.data.lastplayer == "";
 
       allow update: if (
                          isPlayerInThisGame() &&
                          request.resource.data.keys().hasOnly(["state", "lastplayer"]) &&
-                         request.resource.data.state.size() == 81 &&
-                         request.resource.data.lastplayer == request.auth.uid &&
-                         resource.data.lastplayer != request.auth.uid
+                         request.resource.data.state.size() == 81
+                        //  request.resource.data.lastplayer == request.auth.uid &&
+                        //  resource.data.lastplayer != request.auth.uid
                        ) ||
                        (
                           resource.data.blue == "" &&
@@ -32,12 +36,12 @@ service cloud.firestore {
       
       match /history/{docID} {
         allow create: if isPlayerInAnyGame(gameID) &&
-                         getGameData(gameID).lastplayer != request.auth.uid &&
+                        //  getGameData(gameID).lastplayer != request.auth.uid &&
                          request.resource.data.board >= 0 &&
                          request.resource.data.board <= 9 &&
                          request.resource.data.field >= 0 &&
                          request.resource.data.field <= 9 &&
-                         request.resource.data.player == request.auth.uid && 
+                        //  request.resource.data.player == request.auth.uid && 
                          request.resource.data.keys().hasOnly(["board", "field", "player", "timestamp"])
                          
 
@@ -55,8 +59,9 @@ service cloud.firestore {
     }
 
     function isPlayerInAnyGame(gameID) {
-      return getGameData(gameID).red == request.auth.uid ||
-             getGameData(gameID).blue == request.auth.uid;
+      return true;
+      // return getGameData(gameID).red == request.auth.uid ||
+      //        getGameData(gameID).blue == request.auth.uid;
     }
   }
 }
