@@ -46,6 +46,8 @@ service cloud.firestore {
                          
 
         allow update, delete: if false;
+
+        allow read: if isPlayerInAnyGame(gameID)
       }
     }
 
