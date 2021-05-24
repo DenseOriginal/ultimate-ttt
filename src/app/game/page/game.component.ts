@@ -35,10 +35,8 @@ export class GameComponent implements OnInit {
   ) {
     server.auth$.subscribe((auth) => {
       // Wait for signin
-            
+
       server.joinGame(router.snapshot.params.gameID);
-      server.game$.subscribe(console.log);
-      server.history$.subscribe(doc => console.log(doc));
     })
   }
 
